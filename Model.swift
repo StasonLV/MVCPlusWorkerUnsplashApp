@@ -13,14 +13,13 @@ struct SearchResults: Codable {
 }
 
 struct RandomPhotos: Codable {
-    
+    let results: [UnsplashPhoto]
 }
 
 struct UnsplashPhoto: Codable {
     let width: Int
     let height: Int
     let urls: [URLKing.RawValue:String]
-    
     
     enum URLKing: String {
         case raw
@@ -30,3 +29,4 @@ struct UnsplashPhoto: Codable {
         case thumb
     }
 }
+

@@ -25,10 +25,6 @@ class NetworkCollectionViewController: UICollectionViewController {
         return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addBarButtonTapped))
     }()
     
-    private lazy var actionBarButtonItem: UIBarButtonItem = {
-       return UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(actionBarButtonTapped))
-    }()
-    
     private var numberOfSelectedPhotos: Int {
         return collectionView.indexPathsForSelectedItems?.count ?? 0
     }
@@ -48,7 +44,7 @@ class NetworkCollectionViewController: UICollectionViewController {
         DispatchQueue.main.async {
             self.networkDataFetcher.fetchRandomImages { [weak self] (searchResults) in
                 guard let fetchedPhotos = searchResults else { return }
-                self?.photos.append(fetchedPhotos.first)
+                self?.photos.append(contentsOf: fetchedPhotos)
                 self?.collectionView.reloadData()
                 self?.refresh()
             }
@@ -57,7 +53,6 @@ class NetworkCollectionViewController: UICollectionViewController {
     
     private func undateNavButtonsState() {
         addBarButtonItem.isEnabled = numberOfSelectedPhotos > 0
-        actionBarButtonItem.isEnabled = numberOfSelectedPhotos > 0
     }
     
     func refresh() {
@@ -66,8 +61,7 @@ class NetworkCollectionViewController: UICollectionViewController {
         undateNavButtonsState()
     }
     
-    // MARK: - NavigationItems action
-    
+    // MARK: - NavigationItem action
     @objc private func addBarButtonTapped() {
         print(#function)
         let selectedPhotos = collectionView.indexPathsForSelectedItems?.reduce([], { (photosss, indexPath) -> [UnsplashPhoto] in
@@ -81,10 +75,10 @@ class NetworkCollectionViewController: UICollectionViewController {
         let add = UIAlertAction(title: "Добавить", style: .default) { (action) in
             let tabbar = self.tabBarController as! MainTabViewController
             let navVC = tabbar.viewControllers?[1] as! UINavigationController
-            let likesVC = navVC.topViewController as! FavoritesViewController
+            let likesVC = navVC.topViewController as! FavpritesTableViewController
     
             likesVC.photos.append(contentsOf: selectedPhotos ?? [])
-            likesVC.collectionView.reloadData()
+            likesVC.tableView.reloadData()
             
             self.refresh()
         }
@@ -92,27 +86,10 @@ class NetworkCollectionViewController: UICollectionViewController {
         }
         alertController.addAction(add)
         alertController.addAction(cancel)
-        present(alertController, animated: true)    }
-    
-    @objc private func actionBarButtonTapped(sender: UIBarButtonItem) {
-        print(#function)
-        
-        let shareController = UIActivityViewController(activityItems: selectedImages, applicationActivities: nil)
-        
-        
-        shareController.completionWithItemsHandler = { _, bool, _, _ in
-            if bool {
-                self.refresh()
-            }
-        }
-        
-        shareController.popoverPresentationController?.barButtonItem = sender
-        shareController.popoverPresentationController?.permittedArrowDirections = .any
-        present(shareController, animated: true, completion: nil)
+        present(alertController, animated: true)
     }
     
     // MARK: - Setup UI Elements
-    
     private func setupCollectionView() {
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "CellId")
         collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.reuseId)
@@ -124,12 +101,12 @@ class NetworkCollectionViewController: UICollectionViewController {
     
     private func setupNavigationBar() {
         let titleLabel = UILabel()
-        titleLabel.text = "ФОТОГРАФИИ ИЗ СЕТИ"
+        titleLabel.text = "ОНЛАЙН ФОТО"
         titleLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         titleLabel.textColor = #colorLiteral(red: 0.5019607843, green: 0.4980392157, blue: 0.4980392157, alpha: 1)
         navigationItem.leftBarButtonItem = UIBarButtonItem.init(customView: titleLabel)
         
-        navigationItem.rightBarButtonItems = [actionBarButtonItem, addBarButtonItem]
+        navigationItem.rightBarButtonItems = [addBarButtonItem]
     }
     
     private func setupSearchBar() {
@@ -141,19 +118,17 @@ class NetworkCollectionViewController: UICollectionViewController {
     }
     
     // MARK: - UICollecionViewDataSource, UICollecionViewDelegate
-    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return photos.count
     }
-    
-    
+
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCell.reuseId, for: indexPath) as! PhotoCell
         let unspashPhoto = photos[indexPath.item]
         cell.unsplashPhoto = unspashPhoto
         return cell
     }
-    
+
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         undateNavButtonsState()
         let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
@@ -173,12 +148,9 @@ class NetworkCollectionViewController: UICollectionViewController {
 }
 
 // MARK: - UISearchBarDelegate
-
 extension NetworkCollectionViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        print(searchText)
-        
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { (_) in
             self.networkDataFetcher.fetchImages(searchTerm: searchText) { [weak self] (searchResults) in
@@ -192,7 +164,6 @@ extension NetworkCollectionViewController: UISearchBarDelegate {
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
-
 extension NetworkCollectionViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
