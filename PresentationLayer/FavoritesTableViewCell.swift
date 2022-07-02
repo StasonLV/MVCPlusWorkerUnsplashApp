@@ -50,6 +50,7 @@ class FavoritesTableViewCell: UITableViewCell {
     
     var unsplashPhoto: UnsplashPhoto! {
         didSet {
+            authorName.text = unsplashPhoto.user["instagram_username"]
             let photoUrl = unsplashPhoto.urls["regular"]
             guard let imageUrl = photoUrl, let url = URL(string: imageUrl) else { return }
             photo.sd_setImage(with: url, completed: nil)

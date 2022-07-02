@@ -75,7 +75,7 @@ class NetworkCollectionViewController: UICollectionViewController {
         let add = UIAlertAction(title: "Добавить", style: .default) { (action) in
             let tabbar = self.tabBarController as! MainTabViewController
             let navVC = tabbar.viewControllers?[1] as! UINavigationController
-            let likesVC = navVC.topViewController as! FavpritesTableViewController
+            let likesVC = navVC.topViewController as! FavoritesTableViewController
     
             likesVC.photos.append(contentsOf: selectedPhotos ?? [])
             likesVC.tableView.reloadData()

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FavpritesTableViewController: UITableViewController {
+class FavoritesTableViewController: UITableViewController {
 
     var photos = [UnsplashPhoto]()
     
@@ -54,11 +54,15 @@ class FavpritesTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: FavoritesTableViewCell.reuseId, for: indexPath) as! FavoritesTableViewCell
         let unsplashPhoto = photos[indexPath.item]
         cell.unsplashPhoto = unsplashPhoto
-        // Configure the cell...
-
         return cell
     }
-
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let detailsVC = DetailsViewController()
+        self.navigationController?.present(detailsVC, animated: true, completion: nil)
+        
+    }
+    
     /*
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {

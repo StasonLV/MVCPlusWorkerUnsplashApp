@@ -12,7 +12,7 @@ class MainTabViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         let photoVC = NetworkCollectionViewController(collectionViewLayout: UICollectionViewFlowLayout())
-        let favoritesVC = FavpritesTableViewController(style: .insetGrouped)
+        let favoritesVC = FavoritesTableViewController(style: .insetGrouped)
 
         viewControllers = [
             createNavigationController(
